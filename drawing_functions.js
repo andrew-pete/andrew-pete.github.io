@@ -700,8 +700,7 @@ function addpoint(player, sec_num, with_player) {
 	.attr("y1",yScale(ExpShots_self_against(player)))
 	.attr("x2",xScale(ExpShots_self(player)))
 	.attr("y2",yScale(ExpShots_self_against(player)))
-	.style("stroke", "gray")
-	.style("opacity", 0.8)
+	.style("stroke", "rgba(0,0,0, 0.08)")
 	.transition().duration(2000)
 	.attr("x2",xScale(expshots_for))
 	.attr("y2",yScale(expshots_against));
@@ -738,8 +737,7 @@ function addpoint(player, sec_num, with_player) {
 	.attr("y1",yScale(player.against_fenwick_with[player.number]))
 	.attr("x2",500+xScale(player.for_fenwick_with[player.number]))
 	.attr("y2",yScale(player.against_fenwick_with[player.number]))
-	.style("stroke", "gray")
-	.style("opacity", 0.8)
+	.style("stroke", "rgba(0,0,0, 0.08)")
 	.transition().duration(2000)
 	.attr("x2", 500+xScale(actualshots_for))
 	.attr("y2",yScale(actualshots_against));
