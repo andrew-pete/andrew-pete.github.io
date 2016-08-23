@@ -792,25 +792,28 @@ function addpoint(player, sec_num, with_player) {
 
 	var text = 'NZ F%: ' + fenwick_percent + '% <span class = ' + colorPerc +' >(' +dif +')</span>';
 	var text_actual = 'F%: ' + fenwick_actual_percent + '% <span class = ' + colorActual +' >(' +actual_dif +')</span>';
-	var tip = d3.select(".tooltip");
-	
+
 	// Trigger the tooltip on mouse hovering and hide the tip on mouse out
 	cir_exp.on("mouseover", function () {
+		var tip = d3.select(".tooltip");
 		tip.style("opacity",0.9);
 		tip.html(text)
 			.style("left",d3.event.pageX + 10 + "px")
 			.style("top",d3.event.pageY - 30 + "px");
 	}).on("mouseout", function () {
-		tip.style("opacity",0);
+		d3.select(".tooltip")
+			.style("opacity",0);
 	})
 
 	cir_act.on("mouseover", function() {
+		var tip = d3.select(".tooltip");
+
 		tip.style("opacity",0.9)
 			.html(text_actual)
 			.style("left",d3.event.pageX + 10 + "px")
 			.style("top",d3.event.pageY - 30 + "px");
 	}).on("mouseout", function () {
-		tip.style("opacity",0);
+		d3.select(".tooltip").style("opacity",0);
 	});
 }
 
