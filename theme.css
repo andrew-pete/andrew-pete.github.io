@@ -1,0 +1,214 @@
+body {
+  font-family: 'Lato', sans-serif;
+}
+.axis path { fill: none; stroke: black;}
+.axis line { stroke: black; }
+.axis text {
+  font-size: 0.75em;
+}
+.axis2 path { fill: none; stroke: black;}
+.axis2 line { stroke: black; }
+.axis2 text {display: none;}
+.axis3 path,
+.axis3 line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+#title {
+	font-family: 'Lato', sans-serif;
+	font-size: 20;
+  font-weight: 400;
+	margin: auto;
+	text-align: center;
+	padding: 10;
+}
+
+svg text {
+	font-family: 'Lato', sans-serif;
+  font-weight: 300;
+}
+
+#upper_panel {
+	text-align: center;
+	margin-bottom: 25px;
+}
+
+#lower_panel {
+	text-align: center;
+	margin-bottom: 50px;
+}
+#bottom_panel{
+	text-align: center;
+	margin: 0 auto;
+	width: 85%;
+}
+
+
+path.line2{
+	stroke: green;
+	stroke-width: 2;
+	fill: none;
+}
+path.line1 {
+	stroke: lightblue;
+	stroke-width: 2;
+	fill: none;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.barAxis {
+	font-size: 0.70em;
+}
+
+.d3-tip {
+  font-family: 'Lato', sans-serif;
+  line-height: 1;
+  font-weight: 700;
+  padding: 10px;
+  font-size: 0.80em;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: '\25BC';
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+.yBar line, .yBar path{
+	stroke: none;
+	fill: none;
+}
+
+.bars text {
+	fill: white;
+}
+
+.bar_title {
+	font-family: 'Lato', sans-serif;
+	font-size: 0.80em;
+}
+
+.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 90px;
+    /*height: 18px;         */
+    padding: 2px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.65em;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.2);
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.green {
+  color: green;
+}
+
+.red {
+  color: red;
+}
+
+#overview {
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  width: 80%;
+  border-bottom: 1px solid #d8d8d8;
+  margin: 0 auto;
+  padding-bottom: 10px;
+  margin-bottom: 40px;
+  line-height: 1.5em;
+}
+
+.list {
+  padding-left: 5%;
+}
+
+a:link, a:visited {
+  text-decoration: none;
+  color: #5b98c3;
+}
+a:hover {
+  color: #5b98c3;
+  text-decoration: underline;
+}
+
+.header {
+  font-size: 1.4em;
+  color: #5b98c3;
+  text-align: left;
+}
+
+.bottom_description {
+  display: none;
+  text-align: center;
+  width: 80%;
+  margin: 0 auto;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #d8d8d8;
+  border-top: 1px solid #d8d8d8;
+}
+
+.bottom_description p{
+  font-size: 0.85em;
+  color: #383838;
+}
+
+/*#overview {
+  width: 70%;
+  margin: 0 auto;
+  line-height: 1.5em;
+}*/
+
+.term {
+  width: 180px;
+  font-size: 1.10em;
+  font-style: italic;
+  padding-right: 50px;
+  color: black;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.definition {
+  font-size: 0.9em;
+  color: #686868;
+}
+
+#credit {
+  font-size: 0.9em;
+  color: #484848;
+}

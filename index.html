@@ -1,0 +1,247 @@
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<!-- Load the d3 library. -->
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+	<!-- Includes the math for calculating Fenwicks/unblocked shots for/against -->
+	<script src="./stat_math.js"></script>
+	<!-- Includes the js for drawing out large features of the code like the rink and player cards -->
+	<script src="./drawing_functions.js"></script>
+
+
+	<!-- CSS Sheet -->
+	<link rel="stylesheet" type="text/css" href="theme.css">
+</head>
+
+<body>
+	<center><img id="title" src="src/overlays/FlyersTitle2.gif" align="middle"></center>
+	<div id="upper_panel"></div>
+	<div id="lower_panel"></div>
+	<div class = 'bottom_description'>
+	<p>Graph below shows an indivual player's cumulative NZ Fenwick and Actual Fenwick over the season</p>
+	</div>
+	<div id="bottom_panel"></div>
+
+	<div class="tooltip hidden"></div>
+
+
+	<!-- <div id="title">Visualizing Zone Entries for the Philadelphia Flyers 2015-16 Season</div> -->
+	<div id = "overview">
+		<!-- <p class = "description"><span class = "header">Overview</span><br><br>
+			Consistently outshooting another team is heavily correlated with more future goals and thus future wins. Carrying the puck into the offensive zone with control leads to more shots (than dumping the puck), which lead to more goals and more future wins. One's ability to create <i>controlled zone entries</i> offensively and prevent controlled zone entries defensively is a relatively new metric which allows us, and coaches, to diagnose a players' strengths and weaknesses in all three zones. The graphs visualize how pairs of teammates perform together (and without one another) in terms of generating/supressing shots and creating/preventing zone entries. To gain a further understanding of how hockey analytics influenced our visualizations, see our <a href="history.html">reference</a> page.
+		</p> -->
+		<p class = "description"><span class = "header">Glossary of Terms</span><br><br>
+			<table>
+			<tr>
+				<td><p class = "term">With or Without You (WoWY)</p></td>
+				<td><p class = "definition">Graph visualizing how a player/team performs (according to measured stat) with or without another player.
+			<tr>
+				<td><p class = "term">Fenwick:</p></td>
+				<td><p class = "definition">Shots-on-Goal + Shots-Missed (Also called "shots" in visualization)</p><td>
+			</tr>
+			<tr>
+				<td><p class = "term">Fenwick%:</p></td>
+				<td><p class = "definition">Fenwicks For/(Fenwicks For + Fenwicks Against)</p></td>
+			</tr>
+			<tr>
+				<td><p class = "term">Controlled Entry</p></td>
+				<td><p class = "definition">Player moves from neutral zone across blueline with control of the puck. <a href = "http://sonsofpenn.com/wp-content/uploads/2015/10/schennentrylaughtonsupport.gif" target="_blank">(GIF)</a><br>
+				(For -> Offensive Zone, Against -> Defensive Zone) </p></td>
+			</tr>
+			<tr>
+				<td><p class = "term">Uncontrolled Entry</p></td>
+				<td><p class = "definition">Player moves from neutral zone across blueline via dump-in, chip-in, or tipped pass <i>without</i> control of the puck. <a href = "https://gfycat.com/NaughtyWarlikeIslandwhistler" target="_blank">(GIF)</a>
+				</p></td>
+			</tr>
+			<tr>
+				<td><p class = "term">Neutral Zone (NZ) Fenwick-For:</p></td>
+				<td><p class = "definition">(Also <i>Expected Shots-For</i>) Expected fenwicks determined by number of offensive controlled and uncontrolled entries while player is on ice. See <a href = "history.html">reference</a>.</p></td>
+			</tr>
+			<tr>
+				<td><p class = "term">Neutral Zone (NZ) Fenwick-Against</p></td>
+				<td><p class = "definition">(Expected Shots-Against) Opponents expected fenwicks generated, determined by the number of defensive controlled and uncontrolled entries allowed while player is on ice. See <a href = "history.html">reference</a>.</p></td>
+			</tr>
+			<tr>
+				<td><p class = "term">Neutral Zone (NZ) Fenwick %</p></td>
+				<td><p class = "definition">See <i>Fenwick%</i>, except substitute NZ Fenwick For and Against.</p></td>
+			</tr>
+		</table>
+	<p id = "credit">All data was manually tracked by Charlie O'Connor of <a href="broadstreethockey.com" target="_blank">Broad Street Hockey</a>. Follow him <a href="https://twitter.com/BSH_Charlie">@BSH_Charlie</a>, he's awesome. Expected Shots calculated from Eric Tulsky's <a href="http://www.sloansportsconference.com/wp-content/uploads/2013/Using%20Zone%20Entry%20Data%20To%20Separate%20Offensive,%20Neutral,%20And%20Defensive%20Zone%20Performance.pdf">Three Zones Project</a>.</p>
+
+
+
+	</div>
+
+
+	<script>
+
+		var height = 500;
+		var width = 1000;
+		var padding = 50;
+		var team = [];
+		var players;
+		var initial,text;
+		var num = [3,10,12,14,15,17,19,20,21,22,23,24,25,28,32,36,40,47,52,53,55,58,76,78,82,89,93];
+
+
+		//-----------UPPER PANEL------------
+		main_svg = d3.select(upper_panel).append("svg")
+			.attr("height",height)
+			.attr("width",width)
+			.style("background", "#aaa");
+
+		// The left selection panel
+		var left = main_svg.append("rect").attr("width",175).attr("height",500).attr("x",0).attr("y",0).attr("class", "left_panel").style("fill", "#eee");
+
+		// The right selection panel
+		var right = main_svg.append("rect").attr("width",175).attr("height",500).attr("x",825).attr("y",0).attr("class", "right_panel").style("fill", "#eee");
+
+		var rink = main_svg.append("rect").attr("width",650).attr("height",350).attr("x",175).attr("y",0).attr("class", "rink_panel").style("fill", "orange");
+
+		// Player Cards
+		var player_info_box1 = main_svg.append("rect").attr("width",325).attr("height",150).attr("x",175).attr("y",350).style("fill", "#ddd");
+		var player_info_box2 = main_svg.append("rect").attr("width",325).attr("height",150).attr("x",500).attr("y",350).style("fill", "#bbb");
+		var g = main_svg.append("g");
+
+		g.append("svg:image").attr("xlink:href", "src/overlays/underlay.jpg").attr("width", player_info_box1.attr("width")).attr("height", player_info_box1.attr("height")).attr("x", player_info_box1.attr("x")).attr("y", player_info_box1.attr("y")).attr("preserveAspectRatio","none");
+		g.append("svg:image").attr("xlink:href", "src/overlays/underlay.jpg").attr("width", player_info_box2.attr("width")).attr("height", player_info_box2.attr("height")).attr("x", player_info_box2.attr("x")).attr("y", player_info_box2.attr("y")).attr("preserveAspectRatio","none");
+
+		draw_rink(main_svg,rink);
+
+		//Suggest pairs
+		var best_nz_text = main_svg.append("text").attr("class", "pairs").attr("x",293).attr("y",305).style("text-anchor","middle").style("alignment-baseline","middle").text("Best NZ Pair").attr("visibility","hidden");
+
+		var best_nz_pairs = main_svg.append("rect").attr("class", "pairs").attr("x",235.5).attr("y",291.5).attr("width",115).attr("height",25).style("fill", "red").style("opacity",.5).style("stroke","#d77d00").style("stroke-width","4").attr("visibility","hidden");
+
+		var best_actual_text = main_svg.append("text").attr("class", "pairs").attr("x",707).attr("y",305).style("text-anchor","middle").style("alignment-baseline","middle").text("Best Actual Pair").attr("visibility","hidden");
+
+		var best_actual_pairs = main_svg.append("rect").attr("class", "pairs").attr("x",649.5).attr("y",291.5).attr("width",115).attr("height",25).style("fill", "red").style("opacity",.5).style("stroke","#d77d00").style("stroke-width","4").attr("visibility","hidden");
+
+		//Instructions on what the user should do next to get more information
+		var more_info_panel = main_svg.append("rect").attr("width",200).attr("height",25).attr("x",400).attr("y",331.5).style("fill", "#eee").style("stroke","#d77d00").style("stroke-width","4");
+
+		var more_info_text = main_svg.append("text").attr("class", "more_info").attr("x",500).attr("y",345).style("text-anchor","middle").style("alignment-baseline","middle").text("Select a player");
+
+		main_svg.append("rect").attr("width",width).attr("height",height).attr("x",0).attr("y",0).style("fill","transparent").style("stroke","black").style("stroke-width","5");
+
+		//----------------------------------
+		//-----------LOWER PANEL------------
+		lower_svg = d3.select(lower_panel).append("svg")
+			.attr("height",height)
+			.attr("width",width)
+			.style("background", "white");
+
+		var wowy = lower_svg.append("rect")
+			.attr("width",500)
+			.attr("height",500)
+			.attr("x",0)
+			.attr("y",0)
+			.attr("class", "leftpanel")
+			.style("fill", "#ccc");
+		var actualwowy = lower_svg.append("rect")
+			.attr("width",500)
+			.attr("height",500)
+			.attr("x",500)
+			.attr("y",0)
+			.attr("class", "rightpanel")
+			.style("fill", "#eee");
+		//----------------------------------
+
+		// ----------   Create Scales and Axes -----------
+	var xScale = d3.scale.linear().domain([0,800]).range([padding,+(wowy.attr("width")) - +padding]);
+	var yScale = d3.scale.linear().domain([0,800]).range([padding,+(wowy.attr("height")) - +padding]);
+
+	// ----- Left WoWY -----
+	var xAxis = d3.svg.axis().scale(xScale);
+	lower_svg.append("g").attr("class", "axis").attr("transform", "translate(0,"+ (height-padding)+ ")").call(xAxis);
+	lower_svg.append("g").attr("class", "axis2").attr("transform", "translate(0,"+ (padding)+ ")").call(xAxis);
+
+	var yAxis = d3.svg.axis().scale(yScale).orient("left");
+	lower_svg.append("g").attr("class", "axis").attr("transform", "translate(" + padding + ", 0)").call(yAxis);
+	lower_svg.append("g").attr("class", "axis2").attr("transform", "translate(" + ((wowy.attr("height"))-padding) + ", 0)").call(yAxis);
+
+	//Reference Lines
+	lower_svg.append("line").attr("x1",xScale(xScale.domain()[0])).attr("x2",xScale(xScale.domain()[1])).attr("y1",yScale(yScale.domain()[0])).attr("y2",yScale(yScale.domain()[1])).style({"stroke":"rgba(0,0,0,0.2)", "stroke-width":1});
+	lower_svg.append("line").attr("x1",xScale(xScale.domain()[0])).attr("x2",xScale(xScale.domain()[1])).attr("y1",yScale(yScale.domain()[0])).attr("y2",yScale(yScale.domain()[1]*2/3)).style({"stroke":"rgba(0,0,0,0.1)", "stroke-width":1});
+	lower_svg.append("line").attr("x1",xScale(xScale.domain()[0])).attr("x2",xScale(xScale.domain()[1]*2/3)).attr("y1",yScale(yScale.domain()[0])).attr("y2",yScale(yScale.domain()[1])).style({"stroke":"rgba(0,0,0,0.1)", "stroke-width":1});
+
+	// Upper right arrow to denote better performance
+	lower_svg.append("line").attr("x1",415).attr("x2",440).attr("y1",90).attr("y2",65).attr("stroke","black").attr("stroke-width",1);
+	lower_svg.append("line").attr("x1",430).attr("x2",440).attr("y1",65).attr("y2",65).attr("stroke","black").attr("stroke-width",1);
+	lower_svg.append("line").attr("x1",440).attr("x2",440).attr("y1",75).attr("y2",65).attr("stroke","black").attr("stroke-width",1);
+
+	lower_svg.append("text").attr("x",475).attr("y",35).text("Better").attr("text-anchor","middle").attr("alignment-baseline","middle");
+
+	// Lower left arrow to denote worse performance
+	lower_svg.append("line").attr("x1",60).attr("x2",85).attr("y1",440).attr("y2",415).attr("stroke","black").attr("stroke-width",1);
+	lower_svg.append("line").attr("x1",60).attr("x2",60).attr("y1",440).attr("y2",430).attr("stroke","black").attr("stroke-width",1);
+	lower_svg.append("line").attr("x1",60).attr("x2",70).attr("y1",440).attr("y2",440).attr("stroke","black").attr("stroke-width",1);
+
+	lower_svg.append("text").attr("x",25).attr("y",480).text("Worse").attr("text-anchor","middle").attr("alignment-baseline","middle");
+
+	//Title
+	lower_svg.append("text").attr("class", "label").style("fill","black").attr("text-anchor","middle").attr("alignment-baseline","middle").attr("transform","translate(" + ((wowy.attr("width"))/2) + "," + (padding/2) + ")").text("Expected With or Without You").style("font-size",20);
+
+	//Axes Labels
+	lower_svg.append("text").attr("class", "label").style("fill","black").attr("text-anchor","middle").attr("alignment-baseline","middle").attr("transform","translate(" + ((wowy.attr("width"))/2) + "," + (height-padding/4) + ")").text("Expected Shots For");
+
+	lower_svg.append("text").attr("class", "label").attr("text-anchor","middle").attr("alignment-baseline","top").attr("transform","translate(" + (padding/4) + "," + (height/2) + ")rotate(-90)").text("Expected Shots Against");
+
+	// ----- Right WoWY -----
+	var xAxis2 = d3.svg.axis().scale(xScale);
+	lower_svg.append("g").attr("class", "axis").attr("transform", "translate(" + (wowy.attr("width")) + ","+ (height-padding)+ ")").call(xAxis2);
+	lower_svg.append("g").attr("class", "axis2").attr("transform", "translate(" + (wowy.attr("width")) + "," + (padding)+ ")").call(xAxis2);
+
+	var yAxis2 = d3.svg.axis().scale(yScale).orient("left");
+	lower_svg.append("g").attr("class", "axis").attr("transform", "translate(" + (+padding + +wowy.attr("width")) + ", 0)").call(yAxis2);
+	lower_svg.append("g").attr("class", "axis2").attr("transform", "translate(" + (+(actualwowy.attr("width")) - +padding+ +wowy.attr("width")) + ", 0)").call(yAxis2);
+
+	//Reference Lines
+	lower_svg.append("line").attr("x1",(+xScale(xScale.domain()[0])) + +(wowy.attr("width"))).attr("x2",(+xScale(xScale.domain()[1]))+ +(wowy.attr("width")))
+		.attr("y1",yScale(yScale.domain()[0])).attr("y2",yScale(yScale.domain()[1])).style({"stroke":"rgba(0,0,0,0.2)", "stroke-width":1});
+	lower_svg.append("line").attr("x1",(+xScale(xScale.domain()[0])) + +(wowy.attr("width"))).attr("x2",(xScale(xScale.domain()[1])) + +(wowy.attr("width"))).attr("y1",yScale(yScale.domain()[0])).attr("y2",yScale(yScale.domain()[1]*2/3)).style({"stroke":"rgba(0,0,0,0.1)", "stroke-width":1});
+	lower_svg.append("line").attr("x1",(+xScale(xScale.domain()[0])) + +(wowy.attr("width"))).attr("x2",(+xScale(xScale.domain()[1]*2/3)) + +(wowy.attr("width"))).attr("y1",yScale(yScale.domain()[0])).attr("y2",yScale(yScale.domain()[1])).style({"stroke":"rgba(0,0,0,0.1)", "stroke-width":1});
+
+
+	// Upper right arrow to denote better performance
+	lower_svg.append("line").attr("x1",915).attr("x2",940).attr("y1",90).attr("y2",65).attr("stroke","black").attr("stroke-width",1);
+	lower_svg.append("line").attr("x1",930).attr("x2",940).attr("y1",65).attr("y2",65).attr("stroke","black").attr("stroke-width",1);
+	lower_svg.append("line").attr("x1",940).attr("x2",940).attr("y1",75).attr("y2",65).attr("stroke","black").attr("stroke-width",1);
+
+	lower_svg.append("text").attr("x",975).attr("y",35).text("Better").attr("text-anchor","middle").attr("alignment-baseline","middle");
+
+	// Lower left arrow to denote worse performance
+	lower_svg.append("line").attr("x1",560).attr("x2",585).attr("y1",440).attr("y2",415).attr("stroke","black").attr("stroke-width",1);
+	lower_svg.append("line").attr("x1",560).attr("x2",560).attr("y1",440).attr("y2",430).attr("stroke","black").attr("stroke-width",1);
+	lower_svg.append("line").attr("x1",560).attr("x2",570).attr("y1",440).attr("y2",440).attr("stroke","black").attr("stroke-width",1);
+
+	lower_svg.append("text").attr("x",525).attr("y",480).text("Worse").attr("text-anchor","middle").attr("alignment-baseline","middle");
+
+	//Title
+	lower_svg.append("text").attr("class", "label").style("fill","black").attr("text-anchor","middle").attr("alignment-baseline","middle").attr("transform","translate(" + (+width/2 + +wowy.attr("width")/2) + "," + (padding/2) + ")").text("Actual With or Without You").style("font-size",20);
+
+	//Axes Labels
+	lower_svg.append("text").attr("class", "label").style("fill","black").attr("text-anchor","middle").attr("alignment-baseline","middle").attr("transform","translate(" + (+width/2 + +wowy.attr("width")/2) + "," + (height-padding/4) + ")").text("Actual Shots For");
+	lower_svg.append("text").attr("class", "label").attr("text-anchor","middle").attr("alignment-baseline","top").attr("transform","translate(" + (+padding/4 + +wowy.attr("width")) + "," + (height/2) + ")rotate(-90)").text("Actual Shots Against");
+
+	// ---------------------------------------------------
+
+
+
+		// Load data and start the graphs
+		d3.json("data_full.json",function(error, player) {
+			for (var i = 0; i < num.length; i ++) {
+				team.push(player[num[i]]);
+			}
+
+			players = player;
+			initialize(team,players,player_info_box1);
+		})
+
+	</script>
+
+
+
+</body>
