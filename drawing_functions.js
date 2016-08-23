@@ -792,7 +792,8 @@ function addpoint(player, sec_num, with_player) {
 
 	var text = 'NZ F%: ' + fenwick_percent + '% <span class = ' + colorPerc +' >(' +dif +')</span>';
 	var text_actual = 'F%: ' + fenwick_actual_percent + '% <span class = ' + colorActual +' >(' +actual_dif +')</span>';
-
+	var tip = d3.select(".tooltip");
+	
 	// Trigger the tooltip on mouse hovering and hide the tip on mouse out
 	cir_exp.on("mouseover", function () {
 		tip.style("opacity",0.9);
