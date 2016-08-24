@@ -20,7 +20,7 @@
 	<div id="upper_panel"></div>
 	<div id="lower_panel"></div>
 	<div class = 'bottom_description'>
-	<p>Graph below shows an indivual player's cumulative NZ Fenwick and Actual Fenwick over the season</p>
+	<p>Graph below shows an indivual player's cumulative NZ Fenwick and Actual (Score-Adjusted) Fenwick over the season</p>
 	</div>
 	<div id="bottom_panel"></div>
 
@@ -43,7 +43,7 @@
 			</tr>
 			<tr>
 				<td><p class = "term">Fenwick%:</p></td>
-				<td><p class = "definition">Fenwicks For/(Fenwicks For + Fenwicks Against)</p></td>
+				<td><p class = "definition">Fenwicks For/(Fenwicks For + Fenwicks Against) <small>(Score-Adjusted)</small></p></td>
 			</tr>
 			<tr>
 				<td><p class = "term">Controlled Entry</p></td>
@@ -150,8 +150,8 @@
 		//----------------------------------
 
 		// ----------   Create Scales and Axes -----------
-	var xScale = d3.scale.linear().domain([0,800]).range([padding,+(wowy.attr("width")) - +padding]);
-	var yScale = d3.scale.linear().domain([0,800]).range([padding,+(wowy.attr("height")) - +padding]);
+	var xScale = d3.scale.linear().domain([0,850]).range([padding,+(wowy.attr("width")) - +padding]);
+	var yScale = d3.scale.linear().domain([0,850]).range([padding,+(wowy.attr("height")) - +padding]);
 
 	// ----- Left WoWY -----
 	var xAxis = d3.svg.axis().scale(xScale);
@@ -220,7 +220,7 @@
 	lower_svg.append("text").attr("x",525).attr("y",480).text("Worse").attr("text-anchor","middle").attr("alignment-baseline","middle");
 
 	//Title
-	lower_svg.append("text").attr("class", "label").style("fill","black").attr("text-anchor","middle").attr("alignment-baseline","middle").attr("transform","translate(" + (+width/2 + +wowy.attr("width")/2) + "," + (padding/2) + ")").text("Fenwick WoWY").style("font-size",20);
+	lower_svg.append("text").attr("class", "label").style("fill","black").attr("text-anchor","middle").attr("alignment-baseline","middle").attr("transform","translate(" + (+width/2 + +wowy.attr("width")/2) + "," + (padding/2) + ")").text("Score-Adjusted Fenwick WoWY").style("font-size",20);
 
 	//Axes Labels
 	lower_svg.append("text").attr("class", "label").style("fill","black").attr("text-anchor","middle").attr("alignment-baseline","middle").attr("transform","translate(" + (+width/2 + +wowy.attr("width")/2) + "," + (height-padding/4) + ")").text("Actual Shots For");
@@ -231,7 +231,7 @@
 
 
 		// Load data and start the graphs
-		d3.json("data_full.json",function(error, player) {
+		d3.json("data_score_adjusted.json",function(error, player) {
 			for (var i = 0; i < num.length; i ++) {
 				team.push(player[num[i]]);
 			}

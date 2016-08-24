@@ -29,6 +29,23 @@ function ExpShots_against_wo(obj, player_id) {
 	0.29 * (obj.uncontrolled_entry_without_against[player_id]);
 }
 
+var adjustmentCoefficients = {
+	"0": [1.000,1.000],
+	"1": [1.057, 0.943],
+	"2": [1.098, 0.902],
+	"3": [1.142, 0.858],
+	"-2": [0.902, 1.098],
+	"-3": [0.858, 1.142],
+	"-1": [0.943, 1.057]
+};
+
+var scoreAdjusted = function(args) {
+	if (args.score > 3) args.score = 3;
+	else if (args.score < -3) args.score = -3;
+
+	return adjustmentCoefficients[args.score][ (args.isFor)? 0 : 1 ] * args.fenwick;
+};
+
 
 /* Returns JSON for actual improvement given a player and who he plays with
 For an individual player bar graph => 				EXPECTED
@@ -36,9 +53,9 @@ For an individual player bar graph => 				EXPECTED
 	playerWith	-	player (SAME AS ABOVE)
 For multiple players bar graph
 	player 		-	the first player
-	playerWith 	-	the second players 	
+	playerWith 	-	the second players
 
-For either, with_player: 
+For either, with_player:
 	1 = With
 	0 = Without 						*/
 function performance(player, player_with, isWith) {
@@ -67,9 +84,9 @@ For an individual player bar graph => 				ACTUAL
 	playerWith	-	player (SAME AS ABOVE)
 For multiple players bar graph
 	player 		-	the first player
-	playerWith 	-	the second players 	
+	playerWith 	-	the second players
 
-For either, with_player: 
+For either, with_player:
 	1 = With
 	0 = Without 						*/
 function actual_performance(player, player_with, isWith) {
@@ -154,4 +171,3 @@ function best_actual(player) {
 	}
 	return best_player;
 }
-
