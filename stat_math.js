@@ -75,7 +75,7 @@ function performance(player, player_with, isWith) {
 		var dif = percentage - self_percentage;
 	}
 	//dif = dif > 0 ? ("+"+dif*100+"%") : (dif*100+"%");
-	return {percentage: percentage, difference: dif};
+	return {percentage: percentage, difference: dif, with_events: with_for + with_against};
 }
 
 /* Returns JSON for actual improvement given a player and who he plays with
@@ -105,7 +105,7 @@ function actual_performance(player, player_with, isWith) {
 		var percentage = without_for/(without_for+without_against);
 		var dif = percentage - self_percentage;
 	}
-	return {percentage: percentage, difference: dif};
+	return {percentage: percentage, difference: dif, with_events: with_for + with_against};
 }
 
 //Returns a list of players who play better with the given player - Expected
@@ -116,6 +116,7 @@ function best_NZ_pairs(player) {
 		if (numbers[i] != player.number) {
 			var player_performance = performance(player, numbers[i], 1);
 			if (player_performance.difference > 0) {
+				console.log(numbers[i]);
 				positive_players.push(numbers[i]);
 			}
 		}
@@ -140,15 +141,17 @@ function best_actual_pairs(player) {
 
 // Returns the player who will result in best performance for this player - Expected
 function best_NZ(player) {
-	var best_player = Number.MIN_SAFE_INTEGER;;
-	var best_performance= Number.MIN_SAFE_INTEGER;
+	var best_player = Number.MIN_SAFE_INTEGER;
+	var best_performance= {with_events: 0, difference: Number.MIN_SAFE_INTEGER};
 	var numbers = [3,10,12,14,15,17,19,20,21,22,23,24,25,28,32,36,40,47,52,53,55,58,76,78,82,89,93];
 	for(var i in numbers) {
 		if (numbers[i] != player.number) {
 			var player_performance = performance(player, numbers[i], 1);
-			if (player_performance.difference > best_performance) {
+			console.log(player_performance);
+
+			if ( (player_performance.with_events > 50 || (player_performance.with_events > best_performance.with_events)) && player_performance.difference > best_performance.difference ) {
 				best_player = numbers[i];
-				best_performance = player_performance.difference;
+				best_performance = player_performance;
 			}
 		}
 	}
@@ -158,14 +161,16 @@ function best_NZ(player) {
 // Returns the player who will result in best performance for this player - Actual
 function best_actual(player) {
 	var best_player = Number.MIN_SAFE_INTEGER;
-	var best_performance= Number.MIN_SAFE_INTEGER;
+	var best_performance= {with_events: 0, difference: Number.MIN_SAFE_INTEGER};
+
 	var numbers = [3,10,12,14,15,17,19,20,21,22,23,24,25,28,32,36,40,47,52,53,55,58,76,78,82,89,93];
 	for(var i in numbers) {
 		if (numbers[i] != player.number) {
 			var player_performance = actual_performance(player, numbers[i], 1);
-			if (player_performance.difference > best_performance) {
+			console.log(player_performance);
+			if ((player_performance.with_events > 50 || (player_performance.with_events > best_performance.with_events)) && player_performance.difference > best_performance.difference) {
 				best_player = numbers[i];
-				best_performance = player_performance.difference;
+				best_performance = player_performance;
 			}
 		}
 	}
