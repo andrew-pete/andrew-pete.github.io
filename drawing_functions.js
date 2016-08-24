@@ -1028,7 +1028,7 @@ function createCumulative(player) {
 
 	//Legends
 	var legend = svg.selectAll(".legend")
-      .data([{color: "lightblue", category: "NZ Fenwick"},{color: "green", category: "Fenwick"}])
+      .data([{color: "lightblue", category: "NZ Fenwick"},{color: "green", category: "Score-Adjusted Fenwick"}])
       .enter().append("g")
       .attr("class", "legend")
       .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
@@ -1055,9 +1055,9 @@ function createCumulative(player) {
         d1 = dataPlayer[i],
         d = x0 - d0.gameNumber > d1.gameNumber - x0 ? d1 : d0;
     focusEx.attr("transform", "translate(" + xScale(d.gameNumber) + "," + yScale(d.y1) + ")");
-    focusEx.select("text").text(d3.round(d.y1,3)).style("fill","#3182bd");
+    focusEx.select("text").text(d3.round(d.y1,2)).style("fill","#3182bd");
     focus.attr("transform", "translate(" + xScale(d.gameNumber) + "," + yScale(d.y2) + ")");
-    focus.select("text").text(d3.round(d.y2,3)).style("fill","#1bd34f");
+    focus.select("text").text(d3.round(d.y2,2)).style("fill","#1bd34f");
     focus.select("line")
     	.attr("y2", yScale((d.y1-d.y2))-yScale(0));
 		}
